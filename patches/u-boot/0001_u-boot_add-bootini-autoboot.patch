@@ -1,0 +1,18 @@
+diff -Nur a/include/configs/odroidc2.h b/include/configs/odroidc2.h
+--- a/include/configs/odroidc2.h	2016-03-02 21:39:19.000000000 +0000
++++ b/include/configs/odroidc2.h	2016-03-03 20:58:42.674175592 +0000
+@@ -85,13 +85,7 @@
+ 	"fdt_high=0x20000000\0"		\
+ 	"hdmimode=720p60hz\0"		\
+ 	"cecconfig=cecf\0"		\
+-	"bootargs=root=/dev/mmcblk0p2 rw init=/init rootwait "	\
+-		"console=ttyS0,115200 "				\
+-		"hdmimode=720p60hz hdmitx=cecf "		\
+-		"logo=osd1,loaded,0x3f800000,720p60hz "		\
+-		"androidboot.hardware=odroidc2 androidboot.serialno=${fbt_id#} "	\
+-		"androidboot.selinux=disabled  \0"		\
+-	"bootcmd=cfgload; showlogo ${hdmimode}; movi read dtb 0 ${dtbaddr}; movi read boot 0 ${loadaddr}; booti ${loadaddr} - ${dtbaddr}\0"
++	"bootcmd=bootini\0"
+ 
+ #define CONFIG_PREBOOT
+ #define CONFIG_BOOTCOMMAND

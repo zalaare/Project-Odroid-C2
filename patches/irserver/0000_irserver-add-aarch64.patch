@@ -1,0 +1,57 @@
+diff -Nur a/makefile b/makefile
+--- a/makefile	2008-12-14 22:26:18.000000000 +0000
++++ b/makefile	2016-02-15 17:18:14.683930713 +0000
+@@ -9,12 +9,13 @@
+ ODIR = x86
+ ODIR64 = x64
+ ODIRARM = arm
++ODIRAARCH64 = aarch64
+ 
+ _OBJS = fileio.o linuxserio.o lowlevel.o server.o errormessage.o flashrom.o webserver.o xap.o lanio.o ascii.o
+ OBJS = $(patsubst %,$(ODIR)/%,$(_OBJS))
+ OBJS64 = $(patsubst %,$(ODIR64)/%,$(_OBJS))
+ OBJSARM = $(patsubst %,$(ODIRARM)/%,$(_OBJS))
+-
++OBJSAARCH = $(patsubst %,$(ODIRAARCH64)/%,$(_OBJS))
+ 
+ irserver: $(OBJS) $(ODIR)/ccf.o 
+ 	$(CC) $(CFLAGS) $(OBJS) $(ODIR)/ccf.o -m32 -o irserver $(LDFLAGS)
+@@ -34,17 +35,27 @@
+ irserver_arm_noccf: $(OBJSARM) $(ODIRARM)/noccf.o 
+ 	$(CC) $(CFLAGS) $(OBJSARM) $(ODIRARM)/noccf.o -o irserver $(LDFLAGS)
+ 
++irserver_aarch64: $(OBJSARM) $(ODIRARM)/ccf.o
++	$(CC) $(CFLAGS) $(OBJSARM) $(ODIRARM)/ccf.o -o irserver $(LDFLAGS)
++
++irserver_aarch64_noccf: $(OBJSARM) $(ODIRARM)/noccf.o
++	$(CC) $(CFLAGS) $(OBJSARM) $(ODIRARM)/noccf.o -o irserver $(LDFLAGS)
++
+ all: irserver irserver64
+ 
+ arm: irserver_arm
+ 
+ arm_noccf: irserver_arm_noccf
+ 
++aarch64: irserver_aarch64
++
++aarch64: irserver_aarch64_noccf
++
+ clean:
+ 	-rm $(OBJS) x86/noccf.o
+ 	-rm $(OBJS64) x64/noccf.o
+ 	-rm $(OBJSARM) arm/noccf.o
+-
++	-rm $(OBJSAARCH64) aarch64/noccf.o
+ 
+ $(ODIR)/%.o: %.c dbstruct.h fileio.h lowlevel.h network.h serio.h pictures.h remote.h makefile
+ 	$(CC) $(CPPFLAGS) $(CFLAGS) -m32 -c $< -o $@
+@@ -56,6 +67,9 @@
+ $(ODIRARM)/%.o: %.c dbstruct.h fileio.h lowlevel.h network.h serio.h pictures.h remote.h makefile
+ 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+ 
++$(ODIRAARCH64)/%.o: %.c dbstruct.h fileio.h lowlevel.h network.h serio.h pictures.h remote.h makefile
++	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
++
+ irclient: client.c
+ 	$(CC) $(CPPFLAGS) $(CFLAGS) client.c -o irclient $(LDFLAGS)
+ 

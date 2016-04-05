@@ -1,0 +1,132 @@
+################################################################################
+# setup system defaults
+################################################################################
+
+  # Setup controls which processor should be targeted for generated code. : Override
+    TARGET_ARCH=aarch64
+    TARGET_CPU="cortex-a53"
+    TARGET_FLOAT="hard"
+    TARGET_FPU="neon"
+
+  # Bootloader to use (syslinux / u-boot / atv-bootloader / bcm2835-bootloader)
+    BOOTLOADER="u-boot"
+
+  # u-boot version to use (default)
+    UBOOT_VERSION="default"
+
+  # Configuration for u-boot
+    UBOOT_CONFIG="odroidc2_defconfig"
+
+  # Target Configfile for u-boot
+    UBOOT_CONFIGFILE="boot.ini"
+
+  # Kernel target (bzImage, zImage, uImage, Image)
+    KERNEL_TARGET="Image"
+
+  # Kernel extra targets to build
+    KERNEL_UBOOT_EXTRA_TARGET=""
+
+  # Additional kernel make parameters (for example to specify the u-boot loadaddress)
+    KERNEL_MAKE_EXTRACMD="dtbs"
+
+  # Kernel to use. values can be:
+  # default:  default mainline kernel
+    LINUX=""
+
+################################################################################
+# setup build defaults
+################################################################################
+
+  # Build optimizations (size/normal)
+    OPTIMIZATIONS="size"
+
+  # Project CFLAGS
+    PROJECT_CFLAGS=""
+
+  # LTO (Link Time Optimization) support
+    LTO_SUPPORT="yes"
+
+  # GOLD (Google Linker) support
+    GOLD_SUPPORT="yes"
+
+  # SquashFS compression method (gzip / lzo / xz)
+    SQUASHFS_COMPRESSION="gzip"
+
+################################################################################
+# setup project defaults
+################################################################################
+
+  # build and install ALSA Audio support (yes / no)
+    ALSA_SUPPORT="yes"
+
+  # OpenGL(X) implementation to use (no / mesa)
+    OPENGL="no"
+
+  # OpenGL-ES implementation to use (no / bcm2835-driver / gpu-viv-bin-mx6q / opengl-meson6)
+    OPENGLES="hk-mali"
+
+  # include uvesafb support (yes / no)
+    UVESAFB_SUPPORT="no"
+
+  # Displayserver to use (x11 / no)
+    DISPLAYSERVER="no"
+
+  # Windowmanager to use (ratpoison / fluxbox / none)
+    WINDOWMANAGER="none"
+
+  # Xorg Graphic drivers to use (all / i915,i965,r200,r300,r600,nvidia)
+  # Space separated list is supported,
+  # e.g. GRAPHIC_DRIVERS="i915 i965 r300 r600 radeonsi nvidia"
+    GRAPHIC_DRIVERS=""
+
+  # KODI Player implementation to use (default / bcm2835-driver / libfslvpuwrap / libamcodec)
+    KODIPLAYER_DRIVER="odroid-amcodec"
+
+  # Modules to install in initramfs for early boot
+    INITRAMFS_MODULES=""
+
+  # additional drivers to install:
+  # for a list of additinoal drivers see packages/linux-drivers
+  # Space separated list is supported,
+  # e.g. ADDITIONAL_DRIVERS="DRIVER1 DRIVER2"
+    ADDITIONAL_DRIVERS="$ADDITIONAL_DRIVERS"
+
+  # additional Firmware to use (dvb-firmware, misc-firmware, wlan-firmware)
+  # Space separated list is supported,
+  # e.g. FIRMWARE="dvb-firmware misc-firmware wlan-firmware"
+    FIRMWARE="misc-firmware wlan-firmware dvb-firmware rtlnic-firmware"
+
+  # build and install ATV IR remote support (yes / no)
+    ATVCLIENT_SUPPORT="no"
+
+  # build and install IRServer IR/LCD support (yes / no)
+    IRSERVER_SUPPORT="no"
+
+  # Amlogic IR remote support (yes / no)
+    AMREMOTE_SUPPORT="yes"
+
+  # build with swap support (yes / no)
+    SWAP_SUPPORT="no"
+
+  # swap support enabled per default (yes / no)
+    SWAP_ENABLED_DEFAULT="no"
+
+  # swapfile size if SWAP_SUPPORT=yes in MB
+    SWAPFILESIZE="128"
+
+  # build with installer (yes / no)
+    INSTALLER_SUPPORT="yes"
+
+  # extra build dependeices
+    EXTRA_DEPS="mkimage"
+    EXTRA_DEPS_PKG="u-boot-tools"
+
+  # Distribution Specific source location : Additional
+    ODROID_MIRROR="http://freeweb.mine.nu/zalaare"
+
+  # set the addon server
+    ADDON_SERVER_URL="https://raw.github.com/zalaare/OpenELEC-Odroid-Addons"
+
+  # set the addon dirs
+    ADDON_PATH="$ADDON_VERSION/Odroid/C2"
+    ADDON_URL="$ADDON_SERVER_URL/$ADDON_PATH"

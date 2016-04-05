@@ -1,0 +1,28 @@
+--- wpa_supplicant-2.1/wpa_supplicant/Makefile.orig	2014-05-07 10:16:01.239146059 -0400
++++ wpa_supplicant-2.1/wpa_supplicant/Makefile	2014-05-07 10:17:49.414865489 -0400
+@@ -12,6 +12,7 @@
+ 
+ CFLAGS += -I$(abspath ../src)
+ CFLAGS += -I$(abspath ../src/utils)
++LIBS_n := -lpthread -lm
+ 
+ -include .config
+ 
+@@ -1566,7 +1567,7 @@
+ $(OBJS_c) $(OBJS_t) $(OBJS_t2) $(OBJS) $(BCHECK) $(EXTRA_progs): .config
+ 
+ wpa_supplicant: $(BCHECK) $(OBJS) $(EXTRA_progs)
+-	$(Q)$(LDO) $(LDFLAGS) -o wpa_supplicant $(OBJS) $(LIBS) $(EXTRALIBS)
++	$(Q)$(LDO) $(LDFLAGS) -o wpa_supplicant $(OBJS) $(LIBS) $(LIBS_n) $(EXTRALIBS)
+ 	@$(E) "  LD " $@
+ 
+ eapol_test: $(OBJS_t)
+@@ -1578,7 +1579,7 @@
+ 	@$(E) "  LD " $@
+ 
+ wpa_passphrase: $(OBJS_p)
+-	$(Q)$(LDO) $(LDFLAGS) -o wpa_passphrase $(OBJS_p) $(LIBS_p)
++	$(Q)$(LDO) $(LDFLAGS) -o wpa_passphrase $(OBJS_p) $(LIBS_p) $(LIBS_n)
+ 	@$(E) "  LD " $@
+ 
+ wpa_cli: $(OBJS_c)
