@@ -17,33 +17,65 @@
 ################################################################################
 
 PKG_NAME="linux"
-PKG_VERSION="3.14.29+c657ad7"
-PKG_URL="$ODROID_MIRROR/$PKG_NAME-$PKG_VERSION.tar.xz"
 PKG_REV="1"
 PKG_ARCH="any"
 PKG_LICENSE="GPL"
 PKG_SITE="http://www.kernel.org"
-PKG_DEPENDS_HOST="linux-api-headers:host"
-PKG_DEPENDS_TARGET="toolchain cpio:host kmod:host pciutils xz:host lzop:host wireless-regdb"
-PKG_DEPENDS_INIT="toolchain"
+PKG_DEPENDS_HOST="ccache:host"
+PKG_DEPENDS_TARGET="toolchain cpio:host kmod:host pciutils xz:host wireless-regdb keyutils"
+PKG_DEPENDS_INIT="toolchain cpu-firmware:init"
 PKG_NEED_UNPACK="$LINUX_DEPENDS"
 PKG_PRIORITY="optional"
 PKG_SECTION="linux"
-PKG_SHORTDESC="linux: The Linux kernel binary image and modules"
-PKG_LONGDESC="This package contains a precompiled Linux kernel image and the modules."
+PKG_SHORTDESC="linux26: The Linux kernel 2.6 precompiled kernel binary image and modules"
+PKG_LONGDESC="This package contains a precompiled kernel image and the modules."
+case "$LINUX" in
+  hardkernel)
+    PKG_VERSION="hardkernel-3.14-168f37a"
+    PKG_URL="$DISTRO_SRC/$PKG_NAME-$PKG_VERSION.tar.xz"
+    ;;
+  amlogic)
+    PKG_VERSION="amlogic-3.10-c8d5b2f"
+    PKG_URL="$DISTRO_SRC/$PKG_NAME-$PKG_VERSION.tar.xz"
+    ;;
+  imx6)
+    PKG_VERSION="3.14-mx6-sr"
+    PKG_COMMIT="4386797"
+    PKG_SOURCE_DIR="$PKG_NAME-$PKG_VERSION-$PKG_COMMIT"
+    PKG_SOURCE_NAME="$PKG_SOURCE_DIR.tar.xz"
+    PKG_URL="$DISTRO_SRC/$PKG_SOURCE_NAME"
+    PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET imx6-status-led imx6-soc-fan"
+    ;;
+  imx6-4.4-xbian)
+    PKG_VERSION="4.4-xbian"
+    PKG_COMMIT="20160403-d08b62d"
+    PKG_SOURCE_DIR="$PKG_NAME-$PKG_VERSION-$PKG_COMMIT"
+    PKG_SOURCE_NAME="$PKG_SOURCE_DIR.tar.xz"
+    PKG_URL="$DISTRO_SRC/$PKG_SOURCE_NAME"
+    PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET imx6-status-led imx6-soc-fan irqbalanced"
+    ;;
+  *)
+    PKG_VERSION="4.4.6"
+    PKG_URL="http://www.kernel.org/pub/linux/kernel/v4.x/$PKG_NAME-$PKG_VERSION.tar.xz"
+    ;;
+esac
 
 PKG_IS_ADDON="no"
 PKG_AUTORECONF="no"
+
+PKG_MAKE_OPTS_HOST="ARCH=$TARGET_KERNEL_ARCH headers_check"
 
 if [ "$BUILD_ANDROID_BOOTIMG" = "yes" ]; then
   PKG_DEPENDS_TARGET="$PKG_DEPENDS_TARGET mkbootimg:host"
 fi
 
 post_patch() {
-  if [ -f $PROJECT_DIR/$PROJECT/$PKG_NAME/$PKG_NAME.$TARGET_ARCH.conf ]; then
+  if [ -f $PROJECT_DIR/$PROJECT/$PKG_NAME/$PKG_VERSION/$PKG_NAME.$TARGET_ARCH.conf ]; then
+    KERNEL_CFG_FILE=$PROJECT_DIR/$PROJECT/$PKG_NAME/$PKG_VERSION/$PKG_NAME.$TARGET_ARCH.conf
+  elif [ -f $PROJECT_DIR/$PROJECT/$PKG_NAME/$PKG_NAME.$TARGET_ARCH.conf ]; then
     KERNEL_CFG_FILE=$PROJECT_DIR/$PROJECT/$PKG_NAME/$PKG_NAME.$TARGET_ARCH.conf
-  elif [ -f $ROOT/.libreelec/projects/$PROJECT/$PKG_NAME/$PKG_NAME.$TARGET_ARCH.conf ]; then
-    KERNEL_CFG_FILE=$ROOT/.libreelec/projects/$PROJECT/$PKG_NAME/$PKG_NAME.$TARGET_ARCH.conf
+  elif [ -f $PKG_DIR/config/$PKG_VERSION/$PKG_NAME.$TARGET_ARCH.conf ]; then
+    KERNEL_CFG_FILE=$PKG_DIR/config/$PKG_VERSION/$PKG_NAME.$TARGET_ARCH.conf
   else
     KERNEL_CFG_FILE=$PKG_DIR/config/$PKG_NAME.$TARGET_ARCH.conf
   fi
@@ -60,7 +92,7 @@ post_patch() {
   fi
 
   # set default hostname based on $DISTRONAME
-  sed -i -e "s|@DISTRONAME@|$DISTRONAME|g" $PKG_BUILD/.config
+    sed -i -e "s|@DISTRONAME@|$DISTRONAME|g" $PKG_BUILD/.config
 
   # disable swap support if not enabled
   if [ ! "$SWAP_SUPPORT" = yes ]; then
@@ -87,17 +119,15 @@ post_patch() {
   fi
 
   # copy some extra firmware to linux tree
-  cp -R $PKG_DIR/firmware/* $PKG_BUILD/firmware || :
+  cp -R $PKG_DIR/firmware/* $PKG_BUILD/firmware
 
   make -C $PKG_BUILD oldconfig
 }
 
-make_host() {
-  : # do nothing (we use linux-api-headers)
-}
-
 makeinstall_host() {
-  : # do nothing (we use linux-api-headers)
+  make ARCH=$TARGET_KERNEL_ARCH INSTALL_HDR_PATH=dest headers_install
+  mkdir -p $SYSROOT_PREFIX/usr/include
+    cp -R dest/include/* $SYSROOT_PREFIX/usr/include
 }
 
 pre_make_target() {
@@ -138,9 +168,18 @@ make_target() {
 }
 
 makeinstall_target() {
-  if [ "$BOOTLOADER" = "u-boot" -a -f "$(ls arch/$TARGET_KERNEL_ARCH/boot/dts/*.dtb 2>/dev/null)" ]; then
+  if [ "$BOOTLOADER" = "u-boot" ]; then
     mkdir -p $INSTALL/usr/share/bootloader
-      cp arch/$TARGET_KERNEL_ARCH/boot/dts/*.dtb $INSTALL/usr/share/bootloader
+    for dtb in arch/$TARGET_KERNEL_ARCH/boot/dts/*.dtb; do
+      cp $dtb $INSTALL/usr/share/bootloader 2>/dev/null || :
+    done
+  elif [ "$BOOTLOADER" = "bcm2835-bootloader" ]; then
+    mkdir -p $INSTALL/usr/share/bootloader/overlays
+    cp -p arch/$TARGET_KERNEL_ARCH/boot/dts/*.dtb $INSTALL/usr/share/bootloader
+    for dtb in arch/$TARGET_KERNEL_ARCH/boot/dts/overlays/*.dtbo; do
+      cp $dtb $INSTALL/usr/share/bootloader/overlays 2>/dev/null || :
+    done
+    cp -p arch/$TARGET_KERNEL_ARCH/boot/dts/overlays/README $INSTALL/usr/share/bootloader/overlays
   fi
 }
 
@@ -171,8 +210,8 @@ makeinstall_init() {
 
 post_install() {
   mkdir -p $INSTALL/lib/firmware/
-    ln -sfn /storage/.config/firmware/ $INSTALL/lib/firmware/updates
+    ln -sf /storage/.config/firmware/ $INSTALL/lib/firmware/updates
 
   # bluez looks in /etc/firmware/
-    ln -sfn /lib/firmware/ $INSTALL/etc/firmware
+    ln -sf /lib/firmware/ $INSTALL/etc/firmware
 }

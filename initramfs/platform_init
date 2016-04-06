@@ -8,7 +8,7 @@ for x in $(cat /proc/cmdline); do
 done
 
 if [ "$bpp" = "32" ]; then
-  echo d01068b4 0x7fc0 > /sys/kernel/debug/aml_reg/paddr
+	echo d01068b4 0x7fc0 > /sys/kernel/debug/aml_reg/paddr
 fi
 
 HPD_STATE=/sys/class/amhdmitx/amhdmitx0/hpd_state

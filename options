@@ -2,17 +2,30 @@
 # setup system defaults
 ################################################################################
 
-  # Setup controls which processor should be targeted for generated code. : Override
-    TARGET_ARCH=aarch64
-    TARGET_CPU="cortex-a53"
-    TARGET_FLOAT="hard"
-    TARGET_FPU="neon"
+  # The TARGET_CPU variable controls which processor should be targeted for
+  # generated code.
+    case $TARGET_ARCH in
+      arm64)
+        # TARGET_CPU:
+        # arm2 arm250 arm3 arm6 arm60 arm600 arm610 arm620 arm7 arm7m arm7d
+        # arm7dm arm7di arm7dmi arm70 arm700 arm700i arm710 arm710c
+        # arm7100 arm720 arm7500 arm7500fe arm7tdmi arm7tdmi-s arm710t
+        # arm720t arm740t strongarm strongarm110 strongarm1100
+        # strongarm1110 arm8 arm810 arm9 arm9e arm920 arm920t arm922t
+        # arm946e-s arm966e-s arm968e-s arm926ej-s arm940t arm9tdmi
+        # arm10tdmi arm1020t arm1026ej-s arm10e arm1020e arm1022e
+        # arm1136j-s arm1136jf-s mpcore mpcorenovfp arm1156t2-s
+        # arm1176jz-s arm1176jzf-s cortex-a8 cortex-a9 cortex-r4
+        # cortex-r4f cortex-m3 cortex-m1 xscale iwmmxt iwmmxt2 ep9312.
+        TARGET_CPU="cortex-a53"
+        ;;
+    esac
 
-  # Bootloader to use (syslinux / u-boot / atv-bootloader / bcm2835-bootloader)
+  # Bootloader to use (syslinux / u-boot / bcm2835-bootloader)
     BOOTLOADER="u-boot"
 
   # u-boot version to use (default)
-    UBOOT_VERSION="default"
+    UBOOT_VERSION="hardkernel"
 
   # Configuration for u-boot
     UBOOT_CONFIG="odroidc2_defconfig"
@@ -20,7 +33,7 @@
   # Target Configfile for u-boot
     UBOOT_CONFIGFILE="boot.ini"
 
-  # Kernel target (bzImage, zImage, uImage, Image)
+  # Kernel target for u-boot (default 'uImage' if BOOTLOADER=u-boot) (uImage / zImage)
     KERNEL_TARGET="Image"
 
   # Kernel extra targets to build
@@ -31,7 +44,7 @@
 
   # Kernel to use. values can be:
   # default:  default mainline kernel
-    LINUX=""
+    LINUX="hardkernel"
 
 ################################################################################
 # setup build defaults
@@ -50,7 +63,7 @@
     GOLD_SUPPORT="yes"
 
   # SquashFS compression method (gzip / lzo / xz)
-    SQUASHFS_COMPRESSION="gzip"
+    SQUASHFS_COMPRESSION="lzo"
 
 ################################################################################
 # setup project defaults
@@ -59,11 +72,11 @@
   # build and install ALSA Audio support (yes / no)
     ALSA_SUPPORT="yes"
 
-  # OpenGL(X) implementation to use (no / mesa)
+  # OpenGL(X) implementation to use (no / Mesa)
     OPENGL="no"
 
-  # OpenGL-ES implementation to use (no / bcm2835-driver / gpu-viv-bin-mx6q / opengl-meson6)
-    OPENGLES="hk-mali"
+  # OpenGL-ES implementation to use (no / bcm2835-driver / gpu-viv-bin-mx6q / opengl-meson)
+    OPENGLES="opengl-meson"
 
   # include uvesafb support (yes / no)
     UVESAFB_SUPPORT="no"
@@ -74,13 +87,13 @@
   # Windowmanager to use (ratpoison / fluxbox / none)
     WINDOWMANAGER="none"
 
-  # Xorg Graphic drivers to use (all / i915,i965,r200,r300,r600,nvidia)
+  # Xorg Graphic drivers to use (all / i915,i965,r200,r300,r600,nvidia,nouveau)
   # Space separated list is supported,
-  # e.g. GRAPHIC_DRIVERS="i915 i965 r300 r600 radeonsi nvidia"
+  # e.g. GRAPHIC_DRIVERS="i915 i965 r300 r600 radeonsi nvidia nouveau"
     GRAPHIC_DRIVERS=""
 
   # KODI Player implementation to use (default / bcm2835-driver / libfslvpuwrap / libamcodec)
-    KODIPLAYER_DRIVER="odroid-amcodec"
+    KODIPLAYER_DRIVER="libamcodec"
 
   # Modules to install in initramfs for early boot
     INITRAMFS_MODULES=""
@@ -89,12 +102,12 @@
   # for a list of additinoal drivers see packages/linux-drivers
   # Space separated list is supported,
   # e.g. ADDITIONAL_DRIVERS="DRIVER1 DRIVER2"
-    ADDITIONAL_DRIVERS="$ADDITIONAL_DRIVERS"
+    ADDITIONAL_DRIVERS="RTL8192CU RTL8192DU RTL8188EU"
 
   # additional Firmware to use (dvb-firmware, misc-firmware, wlan-firmware)
   # Space separated list is supported,
   # e.g. FIRMWARE="dvb-firmware misc-firmware wlan-firmware"
-    FIRMWARE="misc-firmware wlan-firmware dvb-firmware rtlnic-firmware"
+    FIRMWARE="misc-firmware wlan-firmware dvb-firmware"
 
   # build and install ATV IR remote support (yes / no)
     ATVCLIENT_SUPPORT="no"
@@ -103,7 +116,7 @@
     IRSERVER_SUPPORT="no"
 
   # Amlogic IR remote support (yes / no)
-    AMREMOTE_SUPPORT="yes"
+    AMREMOTE_SUPPORT="no"
 
   # build with swap support (yes / no)
     SWAP_SUPPORT="no"
@@ -115,18 +128,23 @@
     SWAPFILESIZE="128"
 
   # build with installer (yes / no)
-    INSTALLER_SUPPORT="yes"
+    INSTALLER_SUPPORT="no"
 
-  # extra build dependeices
-    EXTRA_DEPS="mkimage"
-    EXTRA_DEPS_PKG="u-boot-tools"
+  # build and install 'RSXS' Screensaver (yes / no)
+    KODI_SCR_RSXS="no"
 
-  # Distribution Specific source location : Additional
-    ODROID_MIRROR="http://freeweb.mine.nu/zalaare"
+  # build and install 'ProjectM' Visualization (yes / no)
+    KODI_VIS_PROJECTM="no"
 
-  # set the addon server
-    ADDON_SERVER_URL="https://raw.github.com/zalaare/OpenELEC-Odroid-Addons"
+  # build and install 'GOOM' Visualization (yes / no)
+    KODI_VIS_GOOM="no"
+
+  # build and install 'FishBMC' Visualization (yes / no)
+    KODI_VIS_FISHBMC="no"
+
+  # kernel image name
+    KERNEL_NAME="KERNEL"
 
   # set the addon dirs
-    ADDON_PATH="$ADDON_VERSION/Odroid/C2"
+    ADDON_PATH="$ADDON_VERSION/$PROJECT/$TARGET_ARCH"
     ADDON_URL="$ADDON_SERVER_URL/$ADDON_PATH"

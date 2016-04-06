@@ -1,1 +1,0 @@
-../../../../packages/sysutils/irserver/udev.d
